@@ -1,6 +1,9 @@
-module cn.qingdou.server/common
+module github.com/zuodazuoqianggame/common
 
 go 1.24.0
+
+require cn.qingdou.server/common v1.1.0
+replace cn.qingdou.server/common => github.com/zuodazuoqianggame/common v1.1.0
 
 require (
 	github.com/akkuman/zaploki v0.0.0-20210810103917-b439364b9c95
@@ -63,3 +66,4 @@ require (
 	go.opentelemetry.io/otel v1.24.0
 	gorm.io/gorm v1.25.12
 )
+
