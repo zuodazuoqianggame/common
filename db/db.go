@@ -3,6 +3,8 @@ package db
 import (
 	_ "time/tzdata" // 导入时区数据
 
+	"cn.qingdou.server/common/utils"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -11,14 +13,18 @@ import (
 )
 
 type DBManager struct {
-	dbMap map[string]*gorm.DB
+	dbMap    map[string]*gorm.DB      //关系型数据库的操作
+	redisMap map[string]*redis.Client //redis数据库的操作
 }
 
 func NewDBManager() *DBManager {
-	return &DBManager{dbMap: make(map[string]*gorm.DB)}
+	return &DBManager{
+		dbMap:    make(map[string]*gorm.DB),
+		redisMap: make(map[string]*redis.Client),
+	}
 }
 
-func (dbManager *DBManager) InitDB(name string, dbType string, dsn string) (*gorm.DB, error) {
+func (dbManager *DBManager) Init(name string, dbType string, dsn string) error {
 	logger := zapgorm2.New(zap.L())
 	logger.SetAsDefault()
 
@@ -29,32 +35,45 @@ func (dbManager *DBManager) InitDB(name string, dbType string, dsn string) (*gor
 		dialector = mysql.Open(dsn)
 	case "pgsql":
 		dialector = postgres.Open(dsn)
+	case "redis":
+		client, err := utils.InitRedisByDNS(dsn)
+		if err != nil {
+			return err
+		}
+		dbManager.redisMap[name] = client
 	default:
 		panic("unsuport sql drive")
 	}
-	db, error := gorm.Open(dialector, &gorm.Config{Logger: logger})
+	db, err := gorm.Open(dialector, &gorm.Config{Logger: logger})
 
-	if error != nil {
-		return nil, error
+	if err != nil {
+		return err
 	}
 
 	dbManager.dbMap[name] = db
-	return db, nil
+	return nil
 }
 
-func (dbManager *DBManager) GetDB(name string) *gorm.DB {
+func (dbManager *DBManager) GetGorm(name string) *gorm.DB {
 	if _, ok := dbManager.dbMap[name]; ok {
 		return dbManager.dbMap[name]
 	}
 	return nil
 }
 
-func (dbManager *DBManager) GetDefalutDB() *gorm.DB {
-	return dbManager.GetDB("defalut")
+func (dbManager *DBManager) GetDefaultGorm() *gorm.DB {
+	return dbManager.GetGorm("default")
 }
 
-func (dbManager *DBManager) GetDefaultDB() *gorm.DB {
-	return dbManager.GetDB("default")
+func (dbManager *DBManager) GetRedisClient(name string) *redis.Client {
+	if _, ok := dbManager.redisMap[name]; ok {
+		return dbManager.redisMap[name]
+	}
+	return nil
+}
+
+func (dbManager *DBManager) GetDefaultRedis() *redis.Client {
+	return dbManager.GetRedisClient("default")
 }
 
 func (dbManager *DBManager) Close() {

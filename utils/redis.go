@@ -68,3 +68,19 @@ func InitRedis(addr, password string, db int, enableTls, skipVerifyTls bool, caC
 
 	return client, nil
 }
+
+func InitRedisByDNS(dsn string) (*redis.Client, error) {
+	opt, err := redis.ParseURL(dsn)
+	if err != nil {
+		panic(err)
+	}
+	client := redis.NewClient(opt)
+	// 测试连接，超时控制
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if err := client.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("failed to connect redis: %w", err)
+	}
+
+	return client, nil
+}
