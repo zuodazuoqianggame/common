@@ -5,7 +5,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -70,10 +72,40 @@ func InitRedis(addr, password string, db int, enableTls, skipVerifyTls bool, caC
 }
 
 func InitRedisByDNS(dsn string) (*redis.Client, error) {
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return nil, err
+	}
+	skipVerifyTls := false
+	q := u.Query()
+	v := q.Get("skip_verify")
+	if v != "" {
+		v = strings.ToLower(strings.TrimSpace(v))
+		switch v {
+		case "true", "1", "yes", "on":
+			q.Del("skip_verify")
+			u.RawQuery = q.Encode()
+			dsn = u.String()
+			skipVerifyTls = true
+		}
+	}
+
 	opt, err := redis.ParseURL(dsn)
 	if err != nil {
 		panic(err)
 	}
+
+	if skipVerifyTls {
+		if opt.TLSConfig != nil {
+			opt.TLSConfig.InsecureSkipVerify = true
+		} else {
+			opt.TLSConfig = &tls.Config{
+				MinVersion:         tls.VersionTLS12,
+				InsecureSkipVerify: skipVerifyTls,
+			}
+		}
+	}
+
 	client := redis.NewClient(opt)
 	// 测试连接，超时控制
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

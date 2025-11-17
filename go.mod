@@ -2,8 +2,9 @@ module github.com/zuodazuoqianggame/common
 
 go 1.24.0
 
-require cn.qingdou.server/common v1.2.0
-replace cn.qingdou.server/common => github.com/zuodazuoqianggame/common v1.2.0
+require cn.qingdou.server/common v1.3.1
+
+replace cn.qingdou.server/common => github.com/zuodazuoqianggame/common v1.3.1
 
 require (
 	github.com/akkuman/zaploki v0.0.0-20210810103917-b439364b9c95
@@ -37,11 +38,8 @@ require (
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/jonboulle/clockwork v0.4.0 // indirect
 	github.com/lestrrat-go/strftime v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.24.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.24.0 // indirect
@@ -66,4 +64,3 @@ require (
 	go.opentelemetry.io/otel v1.24.0
 	gorm.io/gorm v1.25.12
 )
-
