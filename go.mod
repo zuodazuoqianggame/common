@@ -2,9 +2,9 @@ module github.com/zuodazuoqianggame/common
 
 go 1.24.0
 
-require cn.qingdou.server/common v1.3.2
+require cn.qingdou.server/common v1.3.3
 
-replace cn.qingdou.server/common => github.com/zuodazuoqianggame/common v1.3.2
+replace cn.qingdou.server/common => github.com/zuodazuoqianggame/common v1.3.3
 
 require (
 	github.com/akkuman/zaploki v0.0.0-20210810103917-b439364b9c95
